@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>客户端大杂烩</title>
+</head>
+<style type="text/css">
+    .client {
+        width:100%;
+        height: 600px;
+        border: none 0px;
+        position:relative;
+        top: 30px;
+        display: none
+    }
+
+    .frame {
+
+    }
+</style>
+<body>
+<h1>Hello World</h1>
+<div style="position:relative">
+    <ul>
+        <li><a href="javascript:void(0)" onclick="showClient('redis')">Redis</a></li>
+        <li><a href="javascript:void(0)" onclick="showClient('es')">ES</a></li>
+    </ul>
+</div>
+<div id="redis" class="client">
+    <iframe src="redis.html" style="width: 100%; height: 100%;" frameborder="0" border="0" marginwidth="0"
+            marginheight="0"></iframe>
+</div>
+<div id="es" class="client">
+    <iframe src="es.html" style="width: 100%; height: 100%;" frameborder="0" border="0" marginwidth="0"
+            marginheight="0"></iframe>
+</div>
+
+</body>
+<script language="javascript" type="text/javascript">
+    function showClient(client) {
+        var clients = document.getElementsByClassName('client');
+        for (var i = 0; i < clients.length; i++) {
+            clients[i].style.display = "none";
+        }
+        document.getElementById(client).style.display = "block";
+    }
+</script>
+</html>

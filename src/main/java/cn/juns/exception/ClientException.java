@@ -6,6 +6,9 @@ package cn.juns.exception;
 public class ClientException extends RuntimeException{
     private String msg;
 
+    public ClientException() {
+    }
+
     public ClientException(String msg) {
         this.msg = msg;
     }
