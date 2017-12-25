@@ -1,5 +1,7 @@
 package cn.juns.clients;
 
+import net.dongliu.requests.Requests;
+
 /**
  * Created by liuyuanjun on 2017/12/24.
  */
@@ -25,6 +27,6 @@ public class ESClient implements Client{
 
     @Override
     public Object exec(String script) {
-        return null;
+        return Requests.get(script).send().readToText();
     }
 }

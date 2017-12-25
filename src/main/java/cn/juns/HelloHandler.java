@@ -51,7 +51,7 @@ public class HelloHandler extends AbstractHandler {
                 // 将baseRequest对象放入当前线程的localMap里面
                 Context context = new Context();
                 context.setRequest(baseRequest);
-                context.set(context);
+                context.set();
                 // 执行
                 String result = (String) action.getMethod().invoke(action.getInstance());
                 JSONObject data = new JSONObject();

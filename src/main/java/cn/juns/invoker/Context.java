@@ -19,8 +19,8 @@ public class Context {
         return threadLocal.get();
     }
 
-    public void set(Context context) {
-        threadLocal.set(context);
+    public void set() {
+        threadLocal.set(this);
     }
 
     public String getParam(String name) {
