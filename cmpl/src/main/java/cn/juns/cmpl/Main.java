@@ -9,6 +9,7 @@ public class Main {
 
         nfa.addNode(new Node(1, false, new Node.Side(EPS, 2)));
         nfa.addNode(new Node(2, false, new Node.Side(EPS, 3)));
+//        nfa.addNode(new Node(2, false, new Node.Side(EPS, 3), new Node.Side(EPS, 9)));
         nfa.addNode(new Node(3, false, new Node.Side(EPS, 4), new Node.Side(EPS, 6)));
         nfa.addNode(new Node(4, false, new Node.Side('b', 5)));
         nfa.addNode(new Node(6, false, new Node.Side('c', 7)));

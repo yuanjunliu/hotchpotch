@@ -25,5 +25,17 @@ public class Test {
         list2.add(2);
         list2.add(1);
         System.out.println(list1.equals(list2));
+
+        Map<Map<Set<Integer>, Integer>, Integer> bigMap = new HashMap<>();
+        Map<Set<Integer>, Integer> map1 = new HashMap<>();
+        map1.put(new HashSet<>(), 1);
+        map1.put(new HashSet<>(), 2);
+        Map<Set<Integer>, Integer> map2 = new HashMap<>();
+        map2.put(new HashSet<>(), 1);
+        map2.put(new HashSet<>(), 2);
+        bigMap.put(map1, 1);
+        bigMap.put(map2, 1);
+        System.out.println(bigMap.size());
+
     }
 }

@@ -37,18 +37,81 @@ public class DFA {
                 curState.addSubSide(new SubSide(c, ss));
             }
         }
+        minimal(nfa.end);
     }
 
-    void minimal() {
+    void minimal(Node end) {
+        Map<SubState, Integer> stateTargetMap = new HashMap<>();
         // 先将subStates分成两类
-        //[x y z] 0
-        //[a b] 1
+        Map<Set<SubState>, Integer> finalMap = new HashMap<>();
+        int newStateId = 0;
+        int startNewState = newStateId++;
+        int endNewState = newStateId++;
+
+        Set<SubState> initSet = new HashSet<>();
+        Set<SubState> finalSet = new HashSet<>();
+
+        this.subStates.forEach(subState -> {
+            if (subState.nodes.contains(end)) {
+                finalSet.add(subState);
+                stateTargetMap.put(subState, endNewState);
+            } else {
+                initSet.add(subState);
+                stateTargetMap.put(subState, startNewState);
+            }
+        });
+        finalMap.put(initSet, startNewState);
+        finalMap.put(finalSet, endNewState);
+
         //map(c, ns) x,y,z
         //map(c, ns) a   map(c, ns) b
-
         // 对每一类进行split，如果不能切分开，则为一个状态
+        Stack<Set<SubState>> queue = new Stack<>();
+        queue.push(initSet);
+        queue.push(finalSet);
 
-        // 如果可以切分开，增加新的类别
+
+        while (!queue.isEmpty()) {
+            Map<Map<Character, Integer>, Set<SubState>> invertMap = new HashMap<>();
+
+            Set<SubState> curSub = queue.pop();
+            if (curSub.size() == 1) continue;
+
+            curSub.forEach(sub -> {
+                Map<Character, Integer> map = new HashMap<>();
+                sub.subSides.forEach(side -> {
+                    map.put(side.c, stateTargetMap.get(side.subState));
+                });
+                Set<SubState> set = invertMap.get(map);
+                if (set == null) {
+                    set = new HashSet<>();
+                    invertMap.put(map, set);
+                }
+                set.add(sub);
+            });
+
+            if (invertMap.size() == 1) continue;
+
+            boolean first = true;
+            for (Map.Entry<Map<Character, Integer>, Set<SubState>> entry
+                    : invertMap.entrySet()) {
+                if (first) {
+                    first = false;
+                    finalMap.put(entry.getValue(), finalMap.get(curSub));
+                    finalMap.remove(curSub);
+                } else {
+                    finalMap.put(entry.getValue(), newStateId++);
+                    queue.push(entry.getValue());
+                }
+            }
+        }
+
+        for (Map.Entry<Set<SubState>, Integer> entry : finalMap.entrySet()) {
+            Set<SubState> key = entry.getKey();
+            Integer state = entry.getValue();
+
+        }
+
     }
 
     SubState exists(Set<Node> nodes) {
