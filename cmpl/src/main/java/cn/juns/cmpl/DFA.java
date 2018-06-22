@@ -7,10 +7,12 @@ import java.util.*;
  * 不动点，工作表算法
  */
 public class DFA {
+    int[][] transitionTable;
     SubState start;
     Set<SubState> subStates = new HashSet<>();
     static final char[] CHARS = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',};
+    static final int COLUMN = 128;
 
     public DFA(NFA nfa) {
         Set<Node> q0 = new HashSet<>();
@@ -42,76 +44,83 @@ public class DFA {
 
     void minimal(Node end) {
         Map<SubState, Integer> stateTargetMap = new HashMap<>();
-        // 先将subStates分成两类
-        Map<Set<SubState>, Integer> finalMap = new HashMap<>();
+        // 最终的状态图
+        Set<Node> finalDFA = new HashSet<>();
         int newStateId = 0;
         int startNewState = newStateId++;
         int endNewState = newStateId++;
 
         Set<SubState> initSet = new HashSet<>();
-        Set<SubState> finalSet = new HashSet<>();
+        Set<SubState> endSet = new HashSet<>();
 
         this.subStates.forEach(subState -> {
             if (subState.nodes.contains(end)) {
-                finalSet.add(subState);
+                endSet.add(subState);
                 stateTargetMap.put(subState, endNewState);
             } else {
                 initSet.add(subState);
                 stateTargetMap.put(subState, startNewState);
             }
         });
-        finalMap.put(initSet, startNewState);
-        finalMap.put(finalSet, endNewState);
+//        finalMap.put(initSet, startNewState);
+//        finalMap.put(finalSet, endNewState);
 
         //map(c, ns) x,y,z
         //map(c, ns) a   map(c, ns) b
         // 对每一类进行split，如果不能切分开，则为一个状态
-        Stack<Set<SubState>> queue = new Stack<>();
-        queue.push(initSet);
-        queue.push(finalSet);
+        Stack<Pair<Set<SubState>, Integer>> queue = new Stack<>();
+        queue.push(new Pair<>(initSet, startNewState));
+        queue.push(new Pair<>(endSet, endNewState));
 
 
         while (!queue.isEmpty()) {
             Map<Map<Character, Integer>, Set<SubState>> invertMap = new HashMap<>();
-
-            Set<SubState> curSub = queue.pop();
-            if (curSub.size() == 1) continue;
+            Pair<Set<SubState>, Integer> pair = queue.pop();
+            Set<SubState> curSub = pair.getK();
+            Integer curState = pair.getV();
 
             curSub.forEach(sub -> {
                 Map<Character, Integer> map = new HashMap<>();
                 sub.subSides.forEach(side -> {
                     map.put(side.c, stateTargetMap.get(side.subState));
                 });
-                Set<SubState> set = invertMap.get(map);
-                if (set == null) {
-                    set = new HashSet<>();
-                    invertMap.put(map, set);
+                Set<SubState> s = invertMap.get(map);
+                if (s == null) {
+                    s = new HashSet<>();
+                    invertMap.putIfAbsent(map, s);
                 }
-                set.add(sub);
+                s.add(sub);
+                invertMap.putIfAbsent(map, new HashSet<>()).add(sub);
             });
-
-            if (invertMap.size() == 1) continue;
 
             boolean first = true;
             for (Map.Entry<Map<Character, Integer>, Set<SubState>> entry
                     : invertMap.entrySet()) {
                 if (first) {
                     first = false;
-                    finalMap.put(entry.getValue(), finalMap.get(curSub));
-                    finalMap.remove(curSub);
+                    if (invertMap.size() == 1) {
+                        Node node = new Node(curState, false);
+                        entry.getKey().forEach(node::addSide);
+                        finalDFA.add(node);
+                    } else {
+                        queue.push(new Pair<>(entry.getValue(), newStateId++));
+                    }
                 } else {
-                    finalMap.put(entry.getValue(), newStateId++);
-                    queue.push(entry.getValue());
+                    entry.getValue().forEach(subState -> {
+                        stateTargetMap.put(subState, endNewState);
+                    });
+                    queue.push(new Pair<>(entry.getValue(), newStateId++));
                 }
             }
         }
 
-        for (Map.Entry<Set<SubState>, Integer> entry : finalMap.entrySet()) {
-            Set<SubState> key = entry.getKey();
-            Integer state = entry.getValue();
-
+        transitionTable = new int[finalDFA.size()][];
+        for (Node node : finalDFA) {
+            // 转移表 哈希表 跳转表
+            int[] columns = new int[COLUMN];
+            node.sides.forEach(side -> columns[side.c] = side.state);
+            transitionTable[node.state] = columns;
         }
-
     }
 
     SubState exists(Set<Node> nodes) {
