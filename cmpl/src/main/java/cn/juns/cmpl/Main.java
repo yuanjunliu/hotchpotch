@@ -7,7 +7,7 @@ public class Main {
         nfa.start = new Node(0, false, new Node.Side('a', 1));
         nfa.end = new Node(9, true);
 
-        // abcdefg(b|c)*
+        // a(b|c)*
         nfa.addNode(new Node(1, false, new Node.Side(EPS, 2)));
 //        nfa.addNode(new Node(2, false, new Node.Side(EPS, 3)));
         nfa.addNode(new Node(2, false, new Node.Side(EPS, 3), new Node.Side(EPS, 9)));
