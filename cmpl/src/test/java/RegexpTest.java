@@ -2,6 +2,7 @@ import cn.juns.cmpl.RegexMatcher;
 import org.junit.Test;
 import org.junit.Assert;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class RegexpTest {
@@ -10,6 +11,16 @@ public class RegexpTest {
         String regex = "(a*)*";
         String str1 = "aaaaaaaaaaaaaaaaaaaaaaab";
         testFor(regex, str1);
+    }
+
+    @Test
+    public void testReSearch() {
+        String regex = "cat+";
+        String str1 = "whos cat is named catty";
+        List<String> result = new RegexMatcher(regex).search(str1);
+        Assert.assertEquals(result.size(), 2);
+        Assert.assertEquals(result.get(0), "cat");
+        Assert.assertEquals(result.get(1), "catt");
     }
 
     public void testFor(String regex, String str) {

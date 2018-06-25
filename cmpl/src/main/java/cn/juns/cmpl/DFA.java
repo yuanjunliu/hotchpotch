@@ -42,10 +42,10 @@ public class DFA {
                 curState.addSubSide(new SubSide(c, ss));
             }
         }
-        minimal(nfa.end);
+        minimal(nfa.start, nfa.end);
     }
 
-    private void minimal(Node end) {
+    private void minimal(Node start, Node end) {
         Map<SubState, Integer> stateTargetMap = new HashMap<>();
         // 最终的状态图
         Set<Node> finalDFA = new HashSet<>();
@@ -102,6 +102,10 @@ public class DFA {
                 if (first) {
                     first = false;
                     if (invertMap.size() == 1) {
+                        if (entry.getValue().stream().anyMatch(subState -> subState.nodes.contains(start))) {
+                            this.is = curState;
+                        }
+
                         Node node = new Node(curState, endSet.containsAll(entry.getValue()));
                         entry.getKey().forEach(node::addSide);
                         finalDFA.add(node);
@@ -133,8 +137,6 @@ public class DFA {
         }
         if (finalDFA.size() == 1) {
             this.is = 1;
-        } else {
-            this.is = 0;
         }
     }
 
@@ -178,14 +180,14 @@ public class DFA {
             char ch = str.charAt(i);
             int ns = transitionTable[tranIndex][ch];
             if (ns == -1) {
-                if (tranIndex == 0) {
+                if (tranIndex == this.is) {
                     i++;
                 } else {
                     if (greed && fs[tranIndex]) {
                         results.add(sb.toString());
                     }
                     sb.delete(0, sb.length());
-                    tranIndex = 0;
+                    tranIndex = this.is;
                 }
             } else {
                 sb.append(ch);
@@ -193,7 +195,7 @@ public class DFA {
                     // success finish
                     results.add(sb.toString());
                     sb.delete(0, sb.length());
-                    tranIndex = 0;
+                    tranIndex = this.is;
                 } else {
                     tranIndex = ns;
                 }

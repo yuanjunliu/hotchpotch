@@ -1,6 +1,6 @@
 package cn.juns.cmpl.Tree;
 
-import cn.juns.cmpl.RegExpParser;
+import cn.juns.cmpl.RegexParser;
 
 public class SyntaxTree {
     private String regexp;
@@ -8,7 +8,7 @@ public class SyntaxTree {
 
     public SyntaxTree(String regexp) {
         this.regexp = regexp;
-        root = RegExpParser.parse(regexp);
+        root = RegexParser.parse(regexp);
     }
 
 

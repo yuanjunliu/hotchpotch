@@ -17,7 +17,7 @@ public class Main {
 //        nfa.addNode(new Node(8, false, new Node.Side(EPS, 3), new Node.Side(EPS, 9)));
 //        nfa.addNode(nfa.end);
         String reg = "(h|H)(t|T)(a(b|c)*)";
-        NFA nfa = new NFA(RegExpParser.parse(reg), 0);
+        NFA nfa = new NFA(RegexParser.parse(reg), 0);
 
         System.out.println(nfa.accept("hta"));
         System.out.println(nfa.accept("htabbbbb"));
