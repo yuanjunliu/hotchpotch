@@ -7,6 +7,8 @@ import java.util.*;
  * 不动点，工作表算法
  */
 public class DFA {
+    boolean[] fs;
+
     int[][] transitionTable;
     SubState start;
     Set<SubState> subStates = new HashSet<>();
@@ -42,7 +44,7 @@ public class DFA {
         minimal(nfa.end);
     }
 
-    void minimal(Node end) {
+    private void minimal(Node end) {
         Map<SubState, Integer> stateTargetMap = new HashMap<>();
         // 最终的状态图
         Set<Node> finalDFA = new HashSet<>();
@@ -99,32 +101,101 @@ public class DFA {
                 if (first) {
                     first = false;
                     if (invertMap.size() == 1) {
-                        Node node = new Node(curState, false);
+                        Node node = new Node(curState, endSet.containsAll(entry.getValue()));
                         entry.getKey().forEach(node::addSide);
                         finalDFA.add(node);
                     } else {
-                        queue.push(new Pair<>(entry.getValue(), newStateId++));
+                        queue.push(new Pair<>(entry.getValue(), curState));
                     }
                 } else {
+                    int state = newStateId++;
+                    queue.push(new Pair<>(entry.getValue(), state));
                     entry.getValue().forEach(subState -> {
-                        stateTargetMap.put(subState, endNewState);
+                        stateTargetMap.put(subState, state);
                     });
-                    queue.push(new Pair<>(entry.getValue(), newStateId++));
                 }
             }
         }
 
         transitionTable = new int[finalDFA.size()][];
+        this.fs = new boolean[finalDFA.size()];
         for (Node node : finalDFA) {
             // 转移表 哈希表 跳转表
-            int[] columns = new int[COLUMN];
+            int[] columns = newColumn(COLUMN);
+
             node.sides.forEach(side -> columns[side.c] = side.state);
             transitionTable[node.state] = columns;
+
+            if (node.accept) {
+                this.fs[node.state] = true;
+            }
         }
     }
 
-    SubState exists(Set<Node> nodes) {
+    private int[] newColumn(int size) {
+        int[] column = new int[size];
+        for (int i = 0, len = column.length; i < len; i++) {
+            column[i] = -1;
+        }
+        return column;
+    }
+
+    private SubState exists(Set<Node> nodes) {
         return subStates.stream().filter(subState -> subState.nodes.equals(nodes)).findFirst().orElse(null);
+    }
+
+    public boolean accept(String s) {
+        int state = 0;
+        for (int i = 0, len = s.length(); i < len; i++) {
+            state = transitionTable[state][s.charAt(i)];
+            if (state == -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * str 待搜索字符串
+     * greed 是否非贪婪匹配
+     *
+     * @param str
+     */
+    public List<String> search(String str, boolean greed) {
+        int i = 0;
+        int len = str.length();
+        int tranIndex = 0;
+
+        List<String> results = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        while (i < len) {
+            char ch = str.charAt(i);
+            int ns = transitionTable[tranIndex][ch];
+            if (ns == -1) {
+                if (tranIndex == 0) {
+                    i++;
+                } else {
+                    if (greed && fs[tranIndex]) {
+                        results.add(sb.toString());
+                    }
+                    sb.delete(0, sb.length());
+                    tranIndex = 0;
+                }
+            } else {
+                sb.append(ch);
+                if (fs[ns] && !greed) {
+                    // success finish
+                    results.add(sb.toString());
+                    sb.delete(0, sb.length());
+                    tranIndex = 0;
+                } else {
+                    tranIndex = ns;
+                }
+                i++;
+            }
+
+        }
+        return results;
     }
 
     static class SubState {

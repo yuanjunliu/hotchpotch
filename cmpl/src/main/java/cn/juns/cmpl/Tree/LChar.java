@@ -10,4 +10,8 @@ public class LChar extends Element {
         super(null, null);
         this.c = c;
     }
+
+    public char getC() {
+        return c;
+    }
 }

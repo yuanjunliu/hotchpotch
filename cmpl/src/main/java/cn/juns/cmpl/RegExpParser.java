@@ -7,15 +7,7 @@ import java.util.List;
 import java.util.Stack;
 
 public class RegExpParser {
-    private String regexp;
 
-    public static void main(String[] args) {
-        String s = "(xx(x))";
-//        int idx = RegExpParser.findRBracketIndexindRBracketIndex(s, 3, s.length());
-//        System.out.println(idx);
-        Element e = RegExpParser.parse("(ab|n*jh+)?");
-        System.out.println(e);
-    }
     /**
      * a  -> a
      * ab -> a concat b
@@ -24,9 +16,6 @@ public class RegExpParser {
      * a+  -> a one_more
      * a?  -> a zero_one
      * a(b|c)*  a concat ((b or c) zero_more)
-     *
-     * 碰到一个字母 构造一个"Char节点"，看看其前继节点，如果有，构造成"连接节点"，替换前继节点
-     *
      *
      */
     public static Element parse(String regexp) {
