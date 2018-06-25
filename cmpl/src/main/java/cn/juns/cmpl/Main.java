@@ -24,9 +24,9 @@ public class Main {
         System.out.println(nfa.accept("htabcegg"));
 
         DFA dfa = new DFA(nfa);
-        System.out.println(dfa.accept("hTab"));
-        System.out.println(dfa.accept("htabbbbb"));
-        System.out.println(dfa.accept("htabcegg"));
+        System.out.println(dfa.match("hTab"));
+        System.out.println(dfa.match("htabbbbb"));
+        System.out.println(dfa.match("htabcegg"));
 
         dfa.search("htcabhtabcbcbbbbgf", true).forEach(System.out::println);
     }

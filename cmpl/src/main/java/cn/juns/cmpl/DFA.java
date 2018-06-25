@@ -8,6 +8,7 @@ import java.util.*;
  */
 public class DFA {
     boolean[] fs;
+    int is;
 
     int[][] transitionTable;
     SubState start;
@@ -117,8 +118,8 @@ public class DFA {
             }
         }
 
-        transitionTable = new int[finalDFA.size()][];
-        this.fs = new boolean[finalDFA.size()];
+        transitionTable = new int[finalDFA.size()+1][];
+        this.fs = new boolean[finalDFA.size()+1];
         for (Node node : finalDFA) {
             // 转移表 哈希表 跳转表
             int[] columns = newColumn(COLUMN);
@@ -129,6 +130,11 @@ public class DFA {
             if (node.accept) {
                 this.fs[node.state] = true;
             }
+        }
+        if (finalDFA.size() == 1) {
+            this.is = 1;
+        } else {
+            this.is = 0;
         }
     }
 
@@ -144,8 +150,8 @@ public class DFA {
         return subStates.stream().filter(subState -> subState.nodes.equals(nodes)).findFirst().orElse(null);
     }
 
-    public boolean accept(String s) {
-        int state = 0;
+    public boolean match(String s) {
+        int state = this.is;
         for (int i = 0, len = s.length(); i < len; i++) {
             state = transitionTable[state][s.charAt(i)];
             if (state == -1) {
@@ -164,7 +170,7 @@ public class DFA {
     public List<String> search(String str, boolean greed) {
         int i = 0;
         int len = str.length();
-        int tranIndex = 0;
+        int tranIndex = this.is;
 
         List<String> results = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
